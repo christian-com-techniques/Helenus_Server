@@ -107,6 +107,7 @@ public class ConnectionHandler implements Runnable {
 				
                 if(!list.ipExists(newMember)) {
 					
+                    KeyValueController.sendRedistributeRequest(newMember);
                     list.add(id, newMember);
 
                     ArrayList<MembershipEntry> memList = list.get();
@@ -119,14 +120,23 @@ public class ConnectionHandler implements Runnable {
                     } catch (JAXBException e) {
                         e.printStackTrace();
                     }
-					
+                    
                 }
 
                 
                 
-                // Go this way, when the node receives a leave-request from another node
-            } else if(a.getNodeName() == "leave") {
+                // Go this way, when the node receives a redistribution-request from another node
+            } else if(a.getNodeName() == "redisreq") {
                 
+            	NodeList n = a.getChildNodes();
+            	String ipOfnewNode = "";
+            	
+            	for(int i=0;i<n.getLength();i++) {
+                    if(n.item(i).getNodeName().equals("ip")) {
+                    	ipOfnewNode = n.item(i).getTextContent();
+                    }
+            	}
+            	
                 // Go this way, when the node gets a membershiplist from another node
             } else if(a.getNodeName() == "membershipList") {
                     
@@ -240,7 +250,7 @@ public class ConnectionHandler implements Runnable {
         						e.printStackTrace();
         					}
                 		} else if(writerequestCache.get(i).getConsistencyLevel().equals("QUO.")) {
-                			if(writerequestCache.get(i).getCounter() > membershiplistSize/2) {
+                			if(writerequestCache.get(i).getCounter() == 2) {
                     			writerequestCache.remove(i);
                     			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
                                 try {
@@ -251,7 +261,7 @@ public class ConnectionHandler implements Runnable {
                 			}
             
                 		} else if(writerequestCache.get(i).getConsistencyLevel().equals("ALL")) {
-                			if(writerequestCache.get(i).getCounter() == membershiplistSize) {
+                			if(writerequestCache.get(i).getCounter() == 3) {
                     			writerequestCache.remove(i);
                     			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
                                 try {
@@ -285,6 +295,8 @@ public class ConnectionHandler implements Runnable {
                 
             } else if(a.getNodeName() == "delete") {
             
+            	System.out.println(msg);
+            	
             	NodeList n = a.getChildNodes();
             	String key = "";
             	String type = "";
@@ -302,14 +314,13 @@ public class ConnectionHandler implements Runnable {
                 	kvc.delete(key, false);
             	} else if(type.equals("serverrequest")) {
                 	kvc.delete(key, true);
+                	kvc_backup.delete(key, true);
             	}
 
                 System.out.println("Key: " + key + " deleted.");
 
             } else if(a.getNodeName() == "update") {
                 
-            	System.out.println(msg);
-            	
             	NodeList n = a.getChildNodes();
             	String key = "";
             	String value = null;
@@ -331,6 +342,7 @@ public class ConnectionHandler implements Runnable {
             		kvc.update(key, value, false);
             	} else if(type.equals("serverrequest")) {
                 	kvc.update(key, value, true);	
+                	kvc_backup.update(key, value, true);
             	}
 
             	
@@ -358,7 +370,7 @@ public class ConnectionHandler implements Runnable {
                     if(n.item(i).getNodeName().equals("clientip")) {
                         clientIP = n.item(i).getTextContent();
                     }
-                    if(n.item(i).getNodeName().equals("consistencylevel")) {
+                    if(n.item(i).getNodeName().equals("level")) {
                     	consistencyLevel = n.item(i).getTextContent();
                     }
             	}
@@ -371,12 +383,14 @@ public class ConnectionHandler implements Runnable {
                     
             		LookupCacheEntry lce = new LookupCacheEntry(clientIP, clientPort, consistencyLevel);
             		lookuprequestCache.add(lce);
+
                     kvc.lookup(key, false, ip, clientIP, clientPort);
                     
             	} else if (type.equals("send")) {
-                    String serverIP = packet.getAddress().getHostAddress();
+                    ip = packet.getAddress().getHostAddress();
                     kvc.lookup(key, true, ip, clientIP, clientPort);
-	            	
+	            	kvc_backup.lookup(key, true, ip, clientIP, clientPort);
+                    
             	} else if(type.equals("receive")) {
                     String value = null;
                     for(int i=0;i<n.getLength();i++) {
@@ -397,18 +411,20 @@ public class ConnectionHandler implements Runnable {
                     			value = lookuprequestCache.get(i).getConOne();
                     			lookuprequestCache.remove(i);
                     			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";
-                                try {
+                                
+                    			try {
             						Supplier.send(clientIP, clientPort, message);
             					} catch (IOException e) {
             						e.printStackTrace();
             					}
                     		} else if(lookuprequestCache.get(i).getConsistencyLevel().equals("QUO.")) {
                     			
-                    			value = lookuprequestCache.get(i).getConQuorum(membershiplistSize);
+                    			value = lookuprequestCache.get(i).getConQuorum(2);
                     			lookuprequestCache.remove(i);
                     			if(!value.equals("")) {
                         			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";
-                                    try {
+                                    
+                        			try {
                 						Supplier.send(clientIP, clientPort, message);
                 					} catch (IOException e) {
                 						e.printStackTrace();
@@ -417,7 +433,7 @@ public class ConnectionHandler implements Runnable {
                     			
                     		} else if(lookuprequestCache.get(i).getConsistencyLevel().equals("ALL")) {
                     		
-                    			value = lookuprequestCache.get(i).getConAll(membershiplistSize);
+                    			value = lookuprequestCache.get(i).getConAll(3);
                     			lookuprequestCache.remove(i);
                     			if(!value.equals("")) {
                         			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";

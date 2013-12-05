@@ -15,6 +15,27 @@ public class KeyValueController<T> {
 
     public void setBackup(Boolean value) { backup = value; }
 
+    //Called every time a node joins. All other nodes get a redistribute request to send values
+    //which should be backuped by the new node to the new node.
+    public static void sendRedistributeRequest(String newNodeIP) {
+    	MembershipList ownList = ConnectionHandler.getMembershipList();
+    	
+        for(int i = 0; i < ownList.get().size(); i++) {
+        	String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<redisreq><ip>"+newNodeIP+"<ip></redisreq>\n";
+            
+        	String ip = ownList.get().get(i).getIPAddress();
+            int port = MyKV.getContactPort();
+        	
+            try {
+                Supplier.send(ip, port, message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    	
+    }
+    
+    
     public void insert(String key, T value, boolean insertHere, String clientIP, int clientPort) {
 
         MembershipList ownList = ConnectionHandler.getMembershipList();
@@ -176,6 +197,8 @@ public class KeyValueController<T> {
                 String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<delete><key>"+String.valueOf(key)+"</key><type>serverrequest</type></delete>\n";
                 try {
                     Supplier.send(ip, port, message);
+                    Supplier.send(ownList.get().get((i+1) % ownList.get().size()).getIPAddress(), port, message);
+                    Supplier.send(ownList.get().get((i+2) % ownList.get().size()).getIPAddress(), port, message);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -235,6 +258,8 @@ public class KeyValueController<T> {
                 String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<update><key>"+String.valueOf(key)+"</key><value>"+newvalue+"</value><type>serverrequest</type></update>\n";
                 try {
                     Supplier.send(ip, port, message);
+                    Supplier.send(ownList.get().get((i+1) % ownList.get().size()).getIPAddress(), port, message);
+                    Supplier.send(ownList.get().get((i+2) % ownList.get().size()).getIPAddress(), port, message);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
