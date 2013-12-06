@@ -233,7 +233,7 @@ public class ConnectionHandler implements Runnable {
                 	
 			if(writerequestCache.get(i).getConsistencyLevel().equals("ONE")) {
 			    writerequestCache.remove(i);
-			    String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
+			    String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value><key>"+key+"</key></writeconsistencycheck>\n";
 			    try {
 				Supplier.send(clientIP, clientPort, message);
 			    } catch (IOException e) {
@@ -242,7 +242,7 @@ public class ConnectionHandler implements Runnable {
 			} else if(writerequestCache.get(i).getConsistencyLevel().equals("QUO.")) {
 			    if(writerequestCache.get(i).getCounter() == 2) {
 				writerequestCache.remove(i);
-				String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
+				String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value><key>"+key+"</key></writeconsistencycheck>\n";
                                 try {
 				    Supplier.send(clientIP, clientPort, message);
 				} catch (IOException e) {
@@ -253,7 +253,7 @@ public class ConnectionHandler implements Runnable {
 			} else if(writerequestCache.get(i).getConsistencyLevel().equals("ALL")) {
 			    if(writerequestCache.get(i).getCounter() == 3) {
 				writerequestCache.remove(i);
-				String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
+				String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value><key>"+key+"</key></writeconsistencycheck>\n";
 				try {
 				    Supplier.send(clientIP, clientPort, message);
 				} catch (IOException e) {
