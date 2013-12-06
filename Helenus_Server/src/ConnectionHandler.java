@@ -67,7 +67,7 @@ public class ConnectionHandler implements Runnable {
             
             
             String msg = new String(buffer, 0, packet.getLength());
-            System.out.println("\nMessage from: " + packet.getAddress().getHostAddress() +", msg: "+msg);
+            
             
             InputSource source = new InputSource(new StringReader(msg));
 
@@ -124,20 +124,8 @@ public class ConnectionHandler implements Runnable {
                 }
 
                 
-                
+             
                 // Go this way, when the node receives a redistribution-request from another node
-            } else if(a.getNodeName() == "redisreq") {
-                
-            	NodeList n = a.getChildNodes();
-            	String ipOfnewNode = "";
-            	
-            	for(int i=0;i<n.getLength();i++) {
-                    if(n.item(i).getNodeName().equals("ip")) {
-                    	ipOfnewNode = n.item(i).getTextContent();
-                    }
-            	}
-            	
-                // Go this way, when the node gets a membershiplist from another node
             } else if(a.getNodeName() == "membershipList") {
                     
                 ArrayList<MembershipEntry> receivedMemList = new ArrayList<MembershipEntry>();
@@ -156,7 +144,8 @@ public class ConnectionHandler implements Runnable {
                 
             
             if(a.getNodeName() == "insert") {
-                
+		System.out.println("\nMessage from: " + packet.getAddress().getHostAddress() +", msg: "+msg);   
+   
             	NodeList n = a.getChildNodes();
             	String key = "";
             	String value = null;
@@ -276,6 +265,9 @@ public class ConnectionHandler implements Runnable {
                 }
             	
             } else if (a.getNodeName() == "backup") {
+
+		System.out.println("\nMessage from: " + packet.getAddress().getHostAddress() +", msg: "+msg);   
+
                 NodeList n = a.getChildNodes();
                 String key = "";
                 String value = null;
@@ -294,6 +286,8 @@ public class ConnectionHandler implements Runnable {
                 //System.out.println("Key: " + Integer.toString(key) + " | Value: " + value + " inserted as backup.");
                 
             } else if(a.getNodeName() == "delete") {
+		
+		System.out.println("\nMessage from: " + packet.getAddress().getHostAddress() +", msg: "+msg);   
             
             	System.out.println(msg);
             	
@@ -349,6 +343,8 @@ public class ConnectionHandler implements Runnable {
                 System.out.println("Key: " + key + " | Value: " + value + " updated.");
 
             } else if(a.getNodeName() == "lookup") {
+
+		System.out.println("\nMessage from: " + packet.getAddress().getHostAddress() +", msg: "+msg);   
                 
             	NodeList n = a.getChildNodes();
             	String key = "";
