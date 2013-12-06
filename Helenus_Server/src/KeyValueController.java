@@ -263,22 +263,18 @@ public class KeyValueController<T> {
             }
 			
             int senderPort = MyKV.getContactPort();
-            String type = null;
-			
-            if(value == null) {
-                type = "null";
-            } else {
-                type = "receive";
-            }
-			
-            String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+String.valueOf(key)+"</key><value>"+value+"</value><type>"+type+"</type><clientip>"+clientIP+"</clientip><port>"+clientPort+"</port></lookup>\n";
-            try {
-                Supplier.send(senderIP, senderPort, message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            
-            return;
+            			
+	    if(value != null) {
+		
+		String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+String.valueOf(key)+"</key><value>"+value+"</value><type>receive</type><clientip>"+clientIP+"</clientip><port>"+clientPort+"</port></lookup>\n";
+		try {
+		    Supplier.send(senderIP, senderPort, message);
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+		
+		return;
+	    }
 			
         }
 		
