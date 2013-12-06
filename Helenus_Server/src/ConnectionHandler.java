@@ -107,7 +107,7 @@ public class ConnectionHandler implements Runnable {
 				
                 if(!list.ipExists(newMember)) {
 					
-                    KeyValueController.sendRedistributeRequest(newMember);
+                    
                     list.add(id, newMember);
 
                     ArrayList<MembershipEntry> memList = list.get();

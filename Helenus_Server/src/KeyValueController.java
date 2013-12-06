@@ -13,28 +13,7 @@ public class KeyValueController<T> {
         store = new ArrayList<KVEntry<T>>();
     }
 
-    public void setBackup(Boolean value) { backup = value; }
-
-    //Called every time a node joins. All other nodes get a redistribute request to send values
-    //which should be backuped by the new node to the new node.
-    public static void sendRedistributeRequest(String newNodeIP) {
-    	MembershipList ownList = ConnectionHandler.getMembershipList();
-    	
-        for(int i = 0; i < ownList.get().size(); i++) {
-        	String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<redisreq><ip>"+newNodeIP+"<ip></redisreq>\n";
-            
-        	String ip = ownList.get().get(i).getIPAddress();
-            int port = MyKV.getContactPort();
-        	
-            try {
-                Supplier.send(ip, port, message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    	
-    }
-    
+    public void setBackup(Boolean value) { backup = value; }    
     
     public void insert(String key, T value, boolean insertHere, String clientIP, int clientPort) {
 
