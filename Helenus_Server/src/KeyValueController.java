@@ -362,7 +362,7 @@ public class KeyValueController<T> {
                         //The pair is deleted locally afterwards.
                         if(!ip.equals(localIP)) {
                             int port = MyKV.getContactPort();
-                            String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<insert><key>"+String.valueOf(key)+"</key><value>"+value+"</value></insert>\n";
+                            String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<insert><key>"+String.valueOf(key)+"</key><value>"+value+"</value><type>serverrequest</type><clientip>"+localIP+"</clientip><port>"+port+"</port></insert>\n";
                             try {
                                 Supplier.send(ip, port, message);
                             } catch (IOException e) {
@@ -426,10 +426,11 @@ public class KeyValueController<T> {
                               || ownList.get().get((j+2) % ownList.get().size()).getIPAddress().equals(localIP))) || store.get(i).getRedistribute())
                         {
 
-			    System.out.println("Backup key shouldn't be here: " + store.get(k).getKey() + " Value: " + store.get(k).getValue());
-                            
-                            String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<insert><key>"+String.valueOf(key)+"</key><value>"+value+"</value></insert>\n";
-                            int port = MyKV.getContactPort();
+			    System.out.println("Backup key shouldn't be here: " + store.get(j).getKey() + " Value: " + store.get(j).getValue());
+
+			    int port = MyKV.getContactPort();
+                            String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<insert><key>"+String.valueOf(key)+"</key><value>"+value+"</value><type>serverrequest</type><clientip>"+localIP+"</clientip><port>"+port+"</port></insert>\n";
+
 
                             try {
                                 Supplier.send(ip, port, message);
