@@ -160,10 +160,16 @@ public class MembershipController {
                     for(int j = 0; j < ownMemList.size(); j++) {
                         if(ownMemList.get(j).getID() >= hash) {
                             if(j == i) {
-                                //System.out.println("Marking Key: " + entry.getKey() + " Value: " + entry.getValue() + " to redistribute.");
+                                System.out.println("Marking Key: " + entry.getKey() + " Value: " + entry.getValue() + " to redistribute.");
                                 entry.setRedistribute(true);
                             }
                             break;
+                        } else if(j + 1 == ownMemList.size()) {
+                        	if(i == 0) {
+                        		System.out.println("Marking Key: " + entry.getKey() + " Value: " + entry.getValue() + " to redistribute.");
+                                entry.setRedistribute(true);
+                        	}
+                        	
                         }
                     }
                 }

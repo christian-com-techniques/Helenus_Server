@@ -353,8 +353,14 @@ public class KeyValueController<T> {
 			
                 for(int j=0;j<ownList.get().size();j++) {
 				
-                    if(ownList.get().get(j).getID() >= hash) {
-                        String ip = ownList.get().get(j).getIPAddress();
+                    if(ownList.get().get(j).getID() >= hash || j+1 == ownList.get().size()) {
+                        String ip = "";
+                        if(ownList.get().get(j).getID() >= hash)
+                            ip = ownList.get().get(j).getIPAddress();
+                        else if(j+1 == ownList.get().size()) {
+                        	ip = ownList.get().get(0).getIPAddress();
+                        }
+                        //= ownList.get().get(j).getIPAddress();
 
                         //We hash all values in our local key-value-store and check, if all the values
                         //are hashed to our machine (checked by IP). If not, the key-value-pair is sent
@@ -378,12 +384,6 @@ public class KeyValueController<T> {
                         } 
                         break;
 	
-                    }
-				
-                    if(j+1 == ownList.get().size()) {
-                        String ip = ownList.get().get(0).getIPAddress();
-					
-					
                     }
 					
                 }
@@ -411,22 +411,32 @@ public class KeyValueController<T> {
                 for(int j=0;j<ownList.get().size();j++) {
 				
                     if(ownList.get().get(j).getID() >= hash || j+1 == ownList.get().size()) {
+                    	
+                    	int index = j;
                         String ip = "";
                         if(ownList.get().get(j).getID() >= hash)
                             ip = ownList.get().get(j).getIPAddress();
-                        else if(j+1 == ownList.get().size())
-                            ip = ownList.get().get(0).getIPAddress();
+                        else if(j+1 == ownList.get().size()) {
+                        	ip = ownList.get().get(0).getIPAddress();
+                    		index = 0;
+                        }
+                            
+                        
+                        //System.out.println("We think key: " + store.get(i).getKey() + " hash: " + hash + " belongs at " + ip);
 
                         
                         //We hash all values in our local key-value-store and check, if all the values
                         //are hashed to some machine, that we are one of the next two nodes in the ring. 
                         //If not, the key-value-pair is sent to the machine where it should be according 
                         //to the local membership list. The pair is deleted locally afterwards.
-                        if((!(ownList.get().get((j+1) % ownList.get().size()).getIPAddress().equals(localIP) 
-                              || ownList.get().get((j+2) % ownList.get().size()).getIPAddress().equals(localIP))) || store.get(i).getRedistribute())
+                        if((!(ownList.get().get((index+1) % ownList.get().size()).getIPAddress().equals(localIP) 
+                              || ownList.get().get((index+2) % ownList.get().size()).getIPAddress().equals(localIP))) || store.get(i).getRedistribute())
                         {
 
-			    System.out.println("Backup key shouldn't be here: " + store.get(j).getKey() + " Value: " + store.get(j).getValue());
+                System.out.println("j+1 "+ownList.get().get((index+1) % ownList.get().size()).getIPAddress());
+                System.out.println("j+2 "+ownList.get().get((index+2) % ownList.get().size()).getIPAddress());
+                System.out.println(localIP);
+			    System.out.println("Backup key shouldn't be here: " + store.get(i).getKey() + " Value: " + store.get(i).getValue());
 
 			    int port = MyKV.getContactPort();
                             String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<insert><key>"+String.valueOf(key)+"</key><value>"+value+"</value><type>serverrequest</type><clientip>"+localIP+"</clientip><port>"+port+"</port></insert>\n";
@@ -456,13 +466,13 @@ public class KeyValueController<T> {
                         break;
                         
                     }
-				
+				/*
                     if(j+1 == ownList.get().size()) {
                         String ip = ownList.get().get(0).getIPAddress();
 					
 					
                     }
-					
+					*/
                 }
             }
         }
