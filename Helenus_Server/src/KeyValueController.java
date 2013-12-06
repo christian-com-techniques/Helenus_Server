@@ -425,6 +425,8 @@ public class KeyValueController<T> {
                         if((!(ownList.get().get((j+1) % ownList.get().size()).getIPAddress().equals(localIP) 
                               || ownList.get().get((j+2) % ownList.get().size()).getIPAddress().equals(localIP))) || store.get(i).getRedistribute())
                         {
+
+			    System.out.println("Backup key shouldn't be here: " + store.get(k).getKey() + " Value: " + store.get(k).getValue());
                             
                             String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<insert><key>"+String.valueOf(key)+"</key><value>"+value+"</value></insert>\n";
                             int port = MyKV.getContactPort();
@@ -444,7 +446,7 @@ public class KeyValueController<T> {
                             else {
                                 for(int k = 0; k < store.size(); k++) {
                                     if(store.get(k).getKey() == key) {
-                                        store.remove(k);
+					store.remove(k);
                                     }
                                 }
                             }
