@@ -192,7 +192,7 @@ public class ConnectionHandler implements Runnable {
 		    String serverIP = packet.getAddress().getHostAddress();
 		    int serverPort = port;
             		
-		    String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><key>"+key+"</key><clientip>"+clientIP+"</clientip><clientport>"+clientPort+"</clientport></writeconsistencycheck>\n";
+		    String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><key>"+key+"</key><clientip>"+clientIP+"</clientip><clientport>"+clientPort+"</clientport><value>true</value></writeconsistencycheck>\n";
 		    System.out.println("Sending: " + message);
                     try {
 			Supplier.send(serverIP, serverPort, message);
@@ -285,7 +285,7 @@ public class ConnectionHandler implements Runnable {
 		    if(n.item(i).getNodeName().equals("clientip")) {
                         clientIP = n.item(i).getTextContent();
                     }
-                    if(n.item(i).getNodeName().equals("port")) {
+                    if(n.item(i).getNodeName().equals("clientport")) {
                         clientPort = Integer.valueOf(n.item(i).getTextContent());
                     }
             	}
@@ -293,7 +293,7 @@ public class ConnectionHandler implements Runnable {
                 kvc_backup.insert(key, value, true, "", 0);
             	
 
-		String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><key>"+key+"</key><clientip>"+clientIP+"</clientip><clientport>"+clientPort+"</clientport></writeconsistencycheck>\n";
+		String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><key>"+key+"</key><clientip>"+clientIP+"</clientip><clientport>"+clientPort+"</clientport><value>true</value></writeconsistencycheck>\n";
 		    System.out.println("Sending: " + message);
                     try {
 			Supplier.send(clientIP, clientPort, message);
