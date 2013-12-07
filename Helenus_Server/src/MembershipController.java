@@ -133,7 +133,7 @@ public class MembershipController {
         }        
     }
     
-    public static void trackFailing(MembershipList own, int failSeconds, KeyValueController<String> kvc_backup) {
+    public static void trackFailing(MembershipList own, int failSeconds, KeyValueController<String> kvc_backup, KeyValueController<String> kvc) {
         //In this loop, we mark all nodes as failed which are older than currentTime minus failSeconds.
         //If a node is marked as failed and the lastUpdate timestamp is older than currentTime - (failSeconds * 2) sec, it is deleted.
 
@@ -165,16 +165,28 @@ public class MembershipController {
                             }
                             break;
                         } else if(j + 1 == ownMemList.size()) {
-                        	if(i == 0) {
-                        		System.out.println("Marking Key: " + entry.getKey() + " Value: " + entry.getValue() + " to redistribute.");
+			    if(i == 0) {
+				System.out.println("Marking Key: " + entry.getKey() + " Value: " + entry.getValue() + " to redistribute.");
                                 entry.setRedistribute(true);
-                        	}
-                        	
+			    }                        	
                         }
                     }
                 }
+
+		//Check if the failed node owns any backups of keys local to our node.
+		for(int j = 0; j < ownMemList.size(); j++) {
+		    if(ownMemList.get(j).getIPAddress().equals(MyKV.getmyIP())) {
+			entries = kvc.showStore();
+			for(KVEntry<String> entry : entries) {
+			    System.out.println("Marking key: " + entry.getKey() + " Value: " + entry.getValue() + " to redistribute.");
+			    entry.setRedistribute(true);
+			}
+			break;
+		    }
+		}
+
                 
-//                System.out.println("Removing Node: " + ownMemList.get(i).getIPAddress());
+		//                System.out.println("Removing Node: " + ownMemList.get(i).getIPAddress());
                 ownMemList.remove(i);
                 continue;
                     

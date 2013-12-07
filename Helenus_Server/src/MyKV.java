@@ -52,7 +52,7 @@ public class MyKV {
 	        
         while(running) {
             ownList.incrHeartbeatCounter(myIP);
-            MembershipController.trackFailing(ownList, conf.intFor("TFail")/1000, kvc_backup);
+            MembershipController.trackFailing(ownList, conf.intFor("TFail")/1000, kvc_backup, kvc);
             MembershipController.sendGossip(ownList, contactIP, contactPort, myIP);
 	            
             //The cleanUp may only be called when the membership list got an update
