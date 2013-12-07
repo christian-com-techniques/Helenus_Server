@@ -226,42 +226,42 @@ public class ConnectionHandler implements Runnable {
                 int membershiplistSize = ownList.get().size();
                 
                 for(int i=0;i<writerequestCache.size();i++) {
-                	if(writerequestCache.get(i).getIp().equals(clientIP)) {
-                		int numOfWriteFeedback = writerequestCache.get(i).getCounter();
-                		writerequestCache.get(i).setCounter(numOfWriteFeedback+1);
-                		
-                		if(writerequestCache.get(i).getConsistencyLevel().equals("ONE")) {
-                			writerequestCache.remove(i);
-                			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
-                			try {
-        						Supplier.send(clientIP, clientPort, message);
-        					} catch (IOException e) {
-        						e.printStackTrace();
-        					}
-                		} else if(writerequestCache.get(i).getConsistencyLevel().equals("QUO.")) {
-                			if(writerequestCache.get(i).getCounter() == 2) {
-                    			writerequestCache.remove(i);
-                    			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
+		    if(writerequestCache.get(i).getIp().equals(clientIP)) {
+			int numOfWriteFeedback = writerequestCache.get(i).getCounter();
+			writerequestCache.get(i).setCounter(numOfWriteFeedback+1);
+                	
+			if(writerequestCache.get(i).getConsistencyLevel().equals("ONE")) {
+			    writerequestCache.remove(i);
+			    String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
+			    try {
+				Supplier.send(clientIP, clientPort, message);
+			    } catch (IOException e) {
+				e.printStackTrace();
+			    }
+			} else if(writerequestCache.get(i).getConsistencyLevel().equals("QUO.")) {
+			    if(writerequestCache.get(i).getCounter() == 2) {
+				writerequestCache.remove(i);
+				String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
                                 try {
-            						Supplier.send(clientIP, clientPort, message);
-            					} catch (IOException e) {
-            						e.printStackTrace();
-            					}
-                			}
-            
-                		} else if(writerequestCache.get(i).getConsistencyLevel().equals("ALL")) {
-                			if(writerequestCache.get(i).getCounter() == 3) {
-                    			writerequestCache.remove(i);
-                    			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
-                                try {
-            						Supplier.send(clientIP, clientPort, message);
-            					} catch (IOException e) {
-            						e.printStackTrace();
-            					}
-                			}
-                		}
-                		
-                	}
+				    Supplier.send(clientIP, clientPort, message);
+				} catch (IOException e) {
+				    e.printStackTrace();
+				}
+			    }
+			    
+			} else if(writerequestCache.get(i).getConsistencyLevel().equals("ALL")) {
+			    if(writerequestCache.get(i).getCounter() == 3) {
+				writerequestCache.remove(i);
+				String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><value>true</value></writeconsistencycheck>\n";
+				try {
+				    Supplier.send(clientIP, clientPort, message);
+				} catch (IOException e) {
+				    e.printStackTrace();
+					}
+			    }
+			}
+                	
+		    }
                 }
             	
             } else if (a.getNodeName() == "backup") {
@@ -400,47 +400,47 @@ public class ConnectionHandler implements Runnable {
                     
                     for(int i=0;i<lookuprequestCache.size();i++) {
                     	if(lookuprequestCache.get(i).getIp().equals(clientIP)) {
-                    		lookuprequestCache.get(i).addValue(value);
+			    lookuprequestCache.get(i).addValue(value);
                     		
-                    		if(lookuprequestCache.get(i).getConsistencyLevel().equals("ONE")) {
+			    if(lookuprequestCache.get(i).getConsistencyLevel().equals("ONE")) {
                     			
-                    			value = lookuprequestCache.get(i).getConOne();
-                    			lookuprequestCache.remove(i);
-                    			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";
+				value = lookuprequestCache.get(i).getConOne();
+				lookuprequestCache.remove(i);
+				String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";
                                 
-                    			try {
-            						Supplier.send(clientIP, clientPort, message);
-            					} catch (IOException e) {
-            						e.printStackTrace();
-            					}
-                    		} else if(lookuprequestCache.get(i).getConsistencyLevel().equals("QUO.")) {
+				try {
+				    Supplier.send(clientIP, clientPort, message);
+				} catch (IOException e) {
+				    e.printStackTrace();
+				}
+			    } else if(lookuprequestCache.get(i).getConsistencyLevel().equals("QUO.")) {
                     			
-                    			value = lookuprequestCache.get(i).getConQuorum(2);
-                    			lookuprequestCache.remove(i);
-                    			if(!value.equals("")) {
-                        			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";
+				value = lookuprequestCache.get(i).getConQuorum(2);
+				if(!value.equals("")) {
+				    lookuprequestCache.remove(i);
+				    String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";
                                     
-                        			try {
-                						Supplier.send(clientIP, clientPort, message);
-                					} catch (IOException e) {
-                						e.printStackTrace();
-                					}
-                    			}
+				    try {
+					Supplier.send(clientIP, clientPort, message);
+				    } catch (IOException e) {
+					e.printStackTrace();
+				    }
+				}
                     			
-                    		} else if(lookuprequestCache.get(i).getConsistencyLevel().equals("ALL")) {
+			    } else if(lookuprequestCache.get(i).getConsistencyLevel().equals("ALL")) {
                     		
-                    			value = lookuprequestCache.get(i).getConAll(3);
-                    			lookuprequestCache.remove(i);
-                    			if(!value.equals("")) {
-                        			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";
+				value = lookuprequestCache.get(i).getConAll(3);				
+				if(!value.equals("")) {
+				    lookuprequestCache.remove(i);
+				    String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<lookup><key>"+key+"</key><value>"+value+"</value><type>serverresponse</type></lookup>\n";
                                     try {
-                						Supplier.send(clientIP, clientPort, message);
-                					} catch (IOException e) {
-                						e.printStackTrace();
-                					}
-                    			}
+					Supplier.send(clientIP, clientPort, message);
+				    } catch (IOException e) {
+					e.printStackTrace();
+				    }
+				}
                     			
-                    		}
+			    }
                     		
                     	}
                     }
