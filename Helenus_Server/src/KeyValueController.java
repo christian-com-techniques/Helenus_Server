@@ -366,7 +366,7 @@ public class KeyValueController<T> {
                         //are hashed to our machine (checked by IP). If not, the key-value-pair is sent
                         //to the machine where it should be according to the local membership list.
                         //The pair is deleted locally afterwards.
-                        if(!ip.equals(localIP) || store.get(j).getRedistribute()) {
+                        if(!ip.equals(localIP) || store.get(i).getRedistribute()) {
                             int port = MyKV.getContactPort();
                             String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<insert><key>"+String.valueOf(key)+"</key><value>"+value+"</value><type>serverrequest</type><clientip>"+localIP+"</clientip><port>"+port+"</port></insert>\n";
                             try {
@@ -375,8 +375,8 @@ public class KeyValueController<T> {
                                 e.printStackTrace();
                             }
 			
-			    if(store.get(j).getRedistribute()) {
-				store.get(j).setRedistribute(false);
+			    if(store.get(i).getRedistribute()) {
+				store.get(i).setRedistribute(false);
 			    } else {
 				for(int k=0;k<store.size();k++) {
 				    if(store.get(k).getKey() == key) {
