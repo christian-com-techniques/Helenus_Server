@@ -189,17 +189,18 @@ public class ConnectionHandler implements Runnable {
             		
             	} else if (type.equals("serverrequest")) {
             		
-            		String serverIP = packet.getAddress().getHostAddress();
-            		int serverPort = port;
+		    String serverIP = packet.getAddress().getHostAddress();
+		    int serverPort = port;
             		
-        			String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><key>"+key+"</key><clientip>"+clientIP+"</clientip><clientport>"+clientPort+"</clientport></writeconsistencycheck>\n";
+		    String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><key>"+key+"</key><clientip>"+clientIP+"</clientip><clientport>"+clientPort+"</clientport></writeconsistencycheck>\n";
+		    System.out.println("Sending: " + message);
                     try {
-						Supplier.send(serverIP, serverPort, message);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+			Supplier.send(serverIP, serverPort, message);
+		    } catch (IOException e) {
+			e.printStackTrace();
+		    }
             		
-                	kvc.insert(key, value, true, clientIP, clientPort);
+		    kvc.insert(key, value, true, clientIP, clientPort);
             	}
             	
             } else if (a.getNodeName() == "writeconsistencycheck") {
@@ -271,6 +272,8 @@ public class ConnectionHandler implements Runnable {
                 NodeList n = a.getChildNodes();
                 String key = "";
                 String value = null;
+		String clientIP = "";
+		int clientPort = 0;
 
                 for(int i=0;i<n.getLength();i++) {
                     if(n.item(i).getNodeName().equals("key")) {
@@ -279,10 +282,24 @@ public class ConnectionHandler implements Runnable {
                     if(n.item(i).getNodeName().equals("value")) {
                         value = n.item(i).getTextContent();
                     }
+		    if(n.item(i).getNodeName().equals("clientip")) {
+                        clientIP = n.item(i).getTextContent();
+                    }
+                    if(n.item(i).getNodeName().equals("port")) {
+                        clientPort = Integer.valueOf(n.item(i).getTextContent());
+                    }
             	}
 
                 kvc_backup.insert(key, value, true, "", 0);
             	
+
+		String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<writeconsistencycheck><key>"+key+"</key><clientip>"+clientIP+"</clientip><clientport>"+clientPort+"</clientport></writeconsistencycheck>\n";
+		    System.out.println("Sending: " + message);
+                    try {
+			Supplier.send(clientIP, clientPort, message);
+		    } catch (IOException e) {
+			e.printStackTrace();
+		    }
                 //System.out.println("Key: " + Integer.toString(key) + " | Value: " + value + " inserted as backup.");
                 
             } else if(a.getNodeName() == "delete") {

@@ -38,7 +38,9 @@ public class KeyValueController<T> {
                         
                         String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<backup><key>"
                             + String.valueOf(key) + "</key><value>" 
-                            + value + "</value></backup>\n";
+                            + value + "</value><clientip>"
+			    + clientIP + "</clientip><clientport>"
+			    + clientPort + "</clientport></backup>\n";
                         
                         try {
 //                            System.out.println("Sending backups to: " 
@@ -380,6 +382,7 @@ public class KeyValueController<T> {
 			    } else {
 				for(int k=0;k<store.size();k++) {
 				    if(store.get(k).getKey() == key) {
+					System.out.println("Removing key: " + key);
 					store.remove(k);
 				    }
 				}
